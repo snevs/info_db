@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Confirmare Stergere Angajat</title>
+    <!-- Use Bootstrap for styling -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+
+<body>
+    <!-- Create a banner -->
+    <div class="jumbotron">
+        <h1 class="display-4">Employee Management System</h1>
+        <p class="lead">Confirmare Stergere Angajat</p>
+    </div>
+    <!-- Use a container to center the form -->
+    <div class="container">
+        <p>Esti sigur ca vrei sa stergi acest angajat din sistem?</p>
+        <p><strong>Nume:</strong> {{ employee[1] }}</p>
+        <p><strong>Email:</strong> {{ employee[2] }}</p>
+        <p><strong>Departament:</strong> {{ employee[3] }}</p>
+        <form action="{{ url_for('delete_employee', id=employee[0]) }}" method="post">
+            <div class="form-group">
+                <button type="submit" class="btn btn-danger mr-2">Yes</button>
+                <a href="{{ url_for('get_all') }}" class="btn btn-secondary">No</a>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

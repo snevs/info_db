@@ -115,22 +115,8 @@ class FileStorage {
 
 // AuditService class for logging actions to a CSV file
 class AuditService {
-    private static final String AUDIT_LOG_FILE = "audit_log.csv"; // File name for audit log
+    private static final String AUDIT_LOG_FILE = "logs/audit_log.csv"; // File name for audit log
     private static final String APPLICATION_NAME = "EmployeeManagementApp"; // Application name for logging
-
-    private static AuditService instance; // Singleton instance
-
-    // Private constructor for singleton pattern
-    private AuditService() {
-    }
-
-    // Method to get the instance of AuditService
-    public static AuditService getInstance() {
-        if (instance == null) {
-            instance = new AuditService(); // Creating instance if it doesn't exist
-        }
-        return instance; // Returning instance
-    }
 
     // Method to log actions with timestamp
     public static void logAction(String action, Employee employee, Date timestamp) {
@@ -155,6 +141,18 @@ class AuditService {
             System.out.println("Error logging action: " + e.getMessage()); // Handling logging error
         }
     }
+
+    // Method to log when application is executed with -test option
+    public static void logTestExecution() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(AUDIT_LOG_FILE, true))) { // Try-with-resources to automatically close resources
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Date format for timestamp
+            String logEntry = "[" + dateFormat.format(new Date()) + "] [" + APPLICATION_NAME + "] " +
+                    "Application executed with -test option"; // Log entry format
+            writer.println(logEntry); // Writing log entry to file
+        } catch (IOException e) {
+            System.out.println("Error logging action: " + e.getMessage()); // Handling logging error
+        }
+    }
 }
 
 // Main class for the application
@@ -165,20 +163,18 @@ public class Main {
     public static void main(String[] args) {
         // Check if the "-test" option is provided
         if (args.length == 1 && args[0].equals("-test")) {
+            AuditService.logTestExecution(); // Log the execution with -test option
             // Read and display users from the file
             try {
-                List<Employee> employees = FileStorage.getInstance().readFromFile("employees.csv");
-                if (employees.isEmpty()) {
-                    System.out.println("No employees found.");
-                    System.exit(0);
-                }
+                List<Employee> employees = FileStorage.getInstance().readFromFile("data/employees.csv");
                 for (Employee employee : employees) {
                     System.out.println(employee);
                 }
             } catch (IOException e) {
                 System.out.println("Error reading data from file: " + e.getMessage());
+                System.exit(1);
             }
-            System.exit(0);
+            System.exit(0); // Exit gracefully after displaying users
         }
 
         // Adding shutdown hook to log program shutdown
@@ -191,7 +187,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in); // Creating scanner object for user input
         EmployeeService employeeService = new EmployeeServiceImpl(); // Creating EmployeeService instance
         FileStorage fileStorage = FileStorage.getInstance(); // Creating FileStorage instance
-        String fileName = "employees.csv"; // File name for storing employees
+        String fileName = "data/employees.csv"; // File name for storing employees
 
         // Authenticate user
         System.out.println("Welcome to the Employee Management System."); // Printing welcome message
@@ -255,7 +251,7 @@ public class Main {
                     for (Employee employee : allEmployees) {
                         System.out.println(employee); // Printing each employee
                     }
-                    AuditService.logAction("Employee viewed", null, new Date()); // Logging employee viewed
+                    AuditService.logAction("Employees viewed", null, new Date()); // Logging employee viewed
                     break;
                 case 4:
                     // Save data to file before exiting

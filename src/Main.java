@@ -163,6 +163,24 @@ public class Main {
     private static final String PASSWORD = "password1"; // Static password
 
     public static void main(String[] args) {
+        // Check if the "-test" option is provided
+        if (args.length == 1 && args[0].equals("-test")) {
+            // Read and display users from the file
+            try {
+                List<Employee> employees = FileStorage.getInstance().readFromFile("employees.csv");
+                if (employees.isEmpty()) {
+                    System.out.println("No employees found.");
+                    System.exit(0);
+                }
+                for (Employee employee : employees) {
+                    System.out.println(employee);
+                }
+            } catch (IOException e) {
+                System.out.println("Error reading data from file: " + e.getMessage());
+            }
+            System.exit(0);
+        }
+
         // Adding shutdown hook to log program shutdown
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             AuditService.logAction("Program shutdown", null, new Date()); // Logging program shutdown
